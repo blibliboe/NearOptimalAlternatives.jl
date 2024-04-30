@@ -1,0 +1,7 @@
+name = "MGA"
+uuid = "a88418a5-8dc5-4f1c-8a3e-d5a75ec49c70"
+authors = ["Matthijs Arnoldus <m.arnoldus-1@tudelft.nl> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1.6"
