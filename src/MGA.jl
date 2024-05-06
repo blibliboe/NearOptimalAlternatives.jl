@@ -1,5 +1,9 @@
 module MGA
 
-# Write your package code here.
+# Packages
+
+using JuMP
+
+include("results.jl")
 
 end
