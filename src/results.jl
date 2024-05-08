@@ -9,7 +9,7 @@ end
 """
     update_solutions!(results::AlternativeSolutions, model::JuMP.Model)
 
-Updates the set of results `AlternativeSolutions` with the variable values obtained when solving the JuMP model `model`.
+Update the set of results `AlternativeSolutions` with the variable values obtained when solving the JuMP model `model`.
 """
 function update_solutions!(results::AlternativeSolutions, model::JuMP.Model)
   if !is_solved_and_feasible(model)
