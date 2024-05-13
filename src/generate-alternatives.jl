@@ -16,14 +16,14 @@ Generate `n_alternatives` solutions to `model` which are as distant from the opt
 - `optimality_gap::Float64`: the maximum percentage deviation (∈ [0,1]) an alternative may have compared to the optimal solution.
 - `n_alternatives`: the number of alternative solutions sought.
 - `metric::Distances.Metric=SqEuclidean()`: the metric used to maximise the difference between alternatives and the optimal solution.
-- `selected_variables::Vector{VariableRef}=[]`: a subset of all variables of `model` that are allowed to be changed when seeking for alternatives (when left empty, all variables can change).
+- `fixed_variables::Vector{VariableRef}=[]`: a subset of all variables of `model` that are not allowed to be changed when seeking for alternatives.
 """
 function generate_alternatives!(
   model::JuMP.Model,
   optimality_gap::Float64,
   n_alternatives::Int64;
   metric::Distances.SemiMetric = SqEuclidean(),
-  selected_variables::Vector{VariableRef} = VariableRef[],
+  fixed_variables::Vector{VariableRef} = VariableRef[],
 )
   if !is_solved_and_feasible(model)
     throw(ArgumentError("JuMP model has not been solved."))
@@ -36,7 +36,7 @@ function generate_alternatives!(
   result = AlternativeSolutions([], [])
 
   @info "Creating model for generating alternatives."
-  create_alternative_problem!(model, optimality_gap, metric, selected_variables)
+  create_alternative_generating_problem!(model, optimality_gap, metric, fixed_variables)
   @info "Solving model."
   optimize!(model)
   @info "Solution #1/$n_alternatives found." solution_summary(model)

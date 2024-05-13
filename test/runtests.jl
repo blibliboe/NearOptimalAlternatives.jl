@@ -1,6 +1,6 @@
 using MGA
 using Test
-using SCIP
+using Ipopt
 using JuMP
 using Distances
 using MathOptInterface
