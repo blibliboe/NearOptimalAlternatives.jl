@@ -28,7 +28,7 @@ function generate_alternatives!(
   if !is_solved_and_feasible(model)
     throw(ArgumentError("JuMP model has not been solved."))
   elseif optimality_gap < 0
-    throw(ArgumentError("Optimality gap (= $optimality_gap) should be at least."))
+    throw(ArgumentError("Optimality gap (= $optimality_gap) should be at least 0."))
   elseif n_alternatives < 1
     throw(ArgumentError("Number of alternatives (= $n_alternatives) should be at least 1."))
   end
