@@ -91,7 +91,6 @@ function generate_alternatives(
     throw(ArgumentError("Number of alternatives (= $n_alternatives) should be at least 1."))
   end
 
-  result = AlternativeSolutions([], [])
 
   @info "Setting up NearOptimalAlternatives problem and solver."
   # Obtain the solution values for all variables, separated in fixed and non-fixed variables.
@@ -105,7 +104,8 @@ function generate_alternatives(
     end
   end
 
-  problem = create_alternative_generating_problem(
+
+  problem = NearOptimalAlternatives.create_alternative_generating_problem(
     model,
     metaheuristic_algorithm,
     initial_solution,
@@ -114,18 +114,10 @@ function generate_alternatives(
     fixed_variable_solutions,
   )
   @info "Solving NearOptimalAlternatives problem."
-  state = run_alternative_generating_problem!(problem)
-  @info "Solution #1/$n_alternatives found." state minimizer(state)
+  state = NearOptimalAlternatives.run_alternative_generating_problem!(problem)
+  @info "Solutions found" state, minimizer(state)
   update_solutions!(result, state, initial_solution, fixed_variable_solutions, model)
 
-  for i = 2:n_alternatives
-    @info "Reconfiguring NearOptimalAlternatives problem with new solution."
-    add_solution!(problem, state, metric)
-    @info "Solving NearOptimalAlternatives problem."
-    state = run_alternative_generating_problem!(problem)
-    @info "Solution #$i/$n_alternatives found." state minimizer(state)
-    update_solutions!(result, state, initial_solution, fixed_variable_solutions, model)
-  end
 
-  return result
+  return state
 end
