@@ -1,4 +1,4 @@
-export generate_alternatives!, generate_alternatives
+export generate_alternatives!, generate_alternatives, multi_objective_generate_alternatives
 
 """
     result = generate_alternatives!(
@@ -134,6 +134,7 @@ end
 """
     result = multi_objective_generate_alternatives(
       model::JuMP.Model,
+      optimality_gap::Float64,
       metaheuristic_algorithm::Metaheuristics.Algorithm;
       metric::Distances.Metric = SqEuclidean(),
       selected_variables::Vector{VariableRef} = []
@@ -149,7 +150,8 @@ Generate pareto front of the multi objective problem, using a metaheuristic algo
 """
 
 function multi_objective_generate_alternatives(
-  model::JuMP.Model,
+  model::JuMP.Model,  
+  optimality_gap::Float64,
   metaheuristic_algorithm::Metaheuristics.Algorithm;
   metric::Distances.SemiMetric = SqEuclidean(),
   fixed_variables::Vector{VariableRef} = VariableRef[],
@@ -171,14 +173,22 @@ function multi_objective_generate_alternatives(
   end
 
   @info "Setting up NearOptimalAlternatives problem"
-  # problem = TODO
+  problem = mo_create_alternative_generating_problem(
+    model,
+    metaheuristic_algorithm,
+    initial_solution,
+    optimality_gap,
+    metric,
+    fixed_variable_solutions,
+  )
 
   @info "Solving NearOptimalAlternatives problem."
   state = run_alternative_generating_problem!(problem)
 
+  return state
+
   @info "Adding solutions to result."
-  for sol in positions(state)
-    # TODO update_solutions!(result, state, initial_solution, fixed_variable_solutions, model)
-  end
+  add_result!(result, state, initial_solution, fixed_variable_solutions, model)
+
   return result
 end

@@ -74,3 +74,40 @@ function update_solutions!(
     extract_objective(JuMP.objective_function(model), best_solution, index_map, fixed_variables)
   push!(results.objective_values, objective_value)
 end
+
+# TODO add documentatation
+# In short add_result! is a function that adds a solution to the result 
+function add_result!(
+  results::AlternativeSolutions,
+  state::Metaheuristics.State,
+  initial_solution::OrderedDict{VariableRef, Float64},
+  fixed_variables::Dict{MOI.VariableIndex, Float64},
+  model::JuMP.Model,
+)
+  if !state.stop
+    throw(ErrorException("Metaheuristic state `state` not terminated when trying to read results."))
+  end
+  solutions = positions(state)
+  for sol in solutions
+    solution = Dict{VariableRef, Float64}()
+    index_map = Dict{Int64, Int64}()
+    # Add all new results
+    for (i, (k, _)) in enumerate(initial_solution)
+      println(initial_solution)
+      solution[k] = sol[i]
+      index_map[k.index.value] = i
+    end
+    # Add values of fixed variables.
+    for (k, v) in fixed_variables
+      solution[JuMP.VariableRef(model, k)] = v
+    end
+
+    push!(results.solutions, solution)
+
+    # Retrieve objective value to original problem.
+    # TODO when mo_objective_value is implemented
+    objective_value = 0.0
+    push!(results.objective_values, objective_value)
+  end
+
+end
