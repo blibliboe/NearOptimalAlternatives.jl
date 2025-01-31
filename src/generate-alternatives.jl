@@ -129,3 +129,56 @@ function generate_alternatives(
 
   return result
 end
+
+
+"""
+    result = multi_objective_generate_alternatives(
+      model::JuMP.Model,
+      metaheuristic_algorithm::Metaheuristics.Algorithm;
+      metric::Distances.Metric = SqEuclidean(),
+      selected_variables::Vector{VariableRef} = []
+    )
+
+Generate pareto front of the multi objective problem, using a metaheuristic algorithm.
+
+# Arguments
+- `model::JuMP.Model`: a solved JuMP model for which alternatives are generated.
+- `metaheuristic_algorithm::Metaheuristics.Algorithm`: algorithm used to search for alternative solutions.
+- `metric::Distances.Metric=SqEuclidean()`: the metric used to maximise the difference between alternatives and the optimal solution.
+- `fixed_variables::Vector{VariableRef}=[]`: a subset of all variables of `model` that are not allowed to be changed when seeking for alternatives.
+"""
+
+function multi_objective_generate_alternatives(
+  model::JuMP.Model,
+  metaheuristic_algorithm::Metaheuristics.Algorithm;
+  metric::Distances.SemiMetric = SqEuclidean(),
+  fixed_variables::Vector{VariableRef} = VariableRef[],
+)
+  if !is_solved_and_feasible(model)
+    throw(ArgumentError("JuMP model has not been solved."))
+  end
+
+  result = AlternativeSolutions([], [])
+
+  initial_solution = OrderedDict{VariableRef, Float64}()
+  fixed_variable_solutions = Dict{MOI.VariableIndex, Float64}()
+  for v in all_variables(model)
+    if v in fixed_variables
+      fixed_variable_solutions[v.index] = value(v)
+    else
+      initial_solution[v] = value(v)
+    end
+  end
+
+  @info "Setting up NearOptimalAlternatives problem"
+  # problem = TODO
+
+  @info "Solving NearOptimalAlternatives problem."
+  state = run_alternative_generating_problem!(problem)
+
+  @info "Adding solutions to result."
+  for sol in positions(state)
+    # TODO update_solutions!(result, state, initial_solution, fixed_variable_solutions, model)
+  end
+  return result
+end

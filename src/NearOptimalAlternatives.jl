@@ -12,5 +12,6 @@ include("results.jl")
 include("alternative-optimisation.jl")
 include("generate-alternatives.jl")
 include("alternative-metaheuristics.jl")
+include("metaheuristic_helper_functions.jl")
 
 end
