@@ -178,7 +178,6 @@ function multi_objective_generate_alternatives(
     model,
     metaheuristic_algorithm,
     initial_solution,
-    optimality_gap,
     metric,
     fixed_variable_solutions,
   )

@@ -21,18 +21,11 @@ Right now only creates multi objective problem in metaheuristics.jl
 """
 function mo_create_objective(
   model::JuMP.Model,
-  solution::OrderedDict{JuMP.VariableRef, Float64},
-  optimality_gap::Float64,
   metric::Distances.SemiMetric,
   index_map::Dict{Int64, Int64},
   fixed_variables::Dict{MOI.VariableIndex, Float64},
 )
-  original_objectives = JuMP.objective_function(model)
-#   solution_values = collect(Float64, values(solution))
-  # Compute objective value of original LP.
-#   original_objective_value =
-#     extract_objective(original_objective, solution_values, index_map, fixed_variables)
-  # Obtain all constraints from model (including variable bounds).
+  original_objectives = JuMP.objective_function(model)  
   constraints = JuMP.all_constraints(model, include_variable_in_set_constraints = true)
   constraint_functions = map(c -> MOI.get(model, MOI.ConstraintFunction(), c), constraints)
   constraint_sets = map(c -> MOI.get(model, MOI.ConstraintSet(), c), constraints)
@@ -47,20 +40,6 @@ function mo_create_objective(
 
     # Initialise set of inequality constraints.
     gx = Vector{Float64}(undef, 0)
-    # Add objective gap constraint depending on whether original LP is maximised or minimised.
-    # if JuMP.objective_sense(model) == JuMP.MAX_SENSE
-    #   push!(
-    #     gx,
-    #     original_objective_value * (1 - optimality_gap * sign(original_objective_value)) -
-    #     extract_objective(original_objective, x, index_map, fixed_variables),
-    #   )
-    # else
-    #   push!(
-    #     gx,
-    #     extract_objective(original_objective, x, index_map, fixed_variables) -
-    #     original_objective_value * (1 + optimality_gap * sign(original_objective_value)),
-    #   )
-    # end
     # Initialise set of equality constraints.
     hx = Vector{Float64}(undef, 0)
 
@@ -148,7 +127,6 @@ function mo_create_alternative_generating_problem(
   model::JuMP.Model,
   algorithm::Metaheuristics.Algorithm,
   initial_solution::OrderedDict{VariableRef, Float64},
-  optimality_gap::Float64,
   metric::Distances.SemiMetric,
   fixed_variables::Dict{MOI.VariableIndex, Float64},
 )
@@ -160,7 +138,7 @@ function mo_create_alternative_generating_problem(
   end
 
   objective =
-    mo_create_objective(model, initial_solution, optimality_gap, metric, index_map, fixed_variables)
+    mo_create_objective(model, metric, index_map, fixed_variables)
   bounds = extract_bounds(model, index_map)
 
   return MetaheuristicProblem(objective, bounds, algorithm)
