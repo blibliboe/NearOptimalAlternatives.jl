@@ -161,6 +161,7 @@ function multi_objective_generate_alternatives(
   end
 
   result = AlternativeSolutions([], [])
+  
 
   initial_solution = OrderedDict{VariableRef, Float64}()
   fixed_variable_solutions = Dict{MOI.VariableIndex, Float64}()
@@ -181,6 +182,8 @@ function multi_objective_generate_alternatives(
     metric,
     fixed_variable_solutions,
   )
+
+  @info "Problem: " problem
 
   @info "Solving NearOptimalAlternatives problem."
   state = run_alternative_generating_problem!(problem)
