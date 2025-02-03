@@ -151,7 +151,6 @@ Generate pareto front of the multi objective problem, using a metaheuristic algo
 
 function multi_objective_generate_alternatives(
   model::JuMP.Model,  
-  optimality_gap::Float64,
   metaheuristic_algorithm::Metaheuristics.Algorithm;
   metric::Distances.SemiMetric = SqEuclidean(),
   fixed_variables::Vector{VariableRef} = VariableRef[],
