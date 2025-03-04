@@ -32,10 +32,13 @@ function mo_create_objective(
 
   function f(x)
 
-    fx = Vector{Float64}(undef, length(original_objectives))
-    for (i, obj) in enumerate(original_objectives)
-        fx[i] = extract_objective(obj, x, index_map, fixed_variables)
-    end
+    fx = extract_multi_objective(original_objectives, x, index_map, fixed_variables)
+
+    # fx = Vector{Float64}(undef, length(original_objectives))
+    # for (i, obj) in enumerate(original_objectives)
+    #     fx[i] = extract_objective(obj, x, index_map, fixed_variables)
+    # end
+
     # Objective function for metaheuristic (= distance between individual x and solution values of original LP). Solution_values does not contain fixed_variables, these are not required in objective as the distance for these variables is zero.
 
     # Initialise set of inequality constraints.

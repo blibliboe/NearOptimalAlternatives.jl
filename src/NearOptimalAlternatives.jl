@@ -6,6 +6,7 @@ using JuMP
 using Distances
 using MathOptInterface
 using Metaheuristics
+using Heuristics
 using DataStructures
 
 

@@ -39,6 +39,93 @@ function add_solution!(
 end
 
 """
+    objective = extract_multi_objective(
+        objective::JuMP.AffExpr,
+        x::Vector{Float64},
+        index_map::Dict{Int64, Int64},
+        fixed_variables::Dict{MOI.VariableIndex, Float64}
+    )
+
+Convert the objective from a MathOptInterface function into a julia function of x. Supports only linear single-objective functions in the form of a*var1 + b*var2 + c*var3.
+
+# Arguments
+- `objective::JuMP.AffExpr`: the objective function to transform into a julia function.
+- `x::Vector{Float64}`: a vector representing an individual in the metaheuristic population.
+- `index_map::Dict{Int64, Int64}`: a dictionary mapping indices in the MathOptInterface model to indices of `x`.
+- `fixed_variables::Dict{MOI.VariableIndex, Float64}: a dictionary containing the values of the fixed variables.`
+"""
+function extract_multi_objective(
+  objective::JuMP.AffExpr,
+  x::Vector{Float64},
+  index_map::Dict{Int64, Int64},
+  fixed_variables::Dict{MOI.VariableIndex, Float64},
+)
+  result = Vector{Float64}(undef, length(objective.terms))
+  # Add all terms in the objective function with variables iteratively.
+  for (i,(var, coef)) in enumerate(objective.terms)
+    # If variable in `index_map`, add corresponding value to the result. Else, the variable is fixed and add the original resulting variable.
+    if haskey(index_map, var.index.value)
+      result[i] = coef * x[index_map[var.index.value]]
+    else
+      result[i] = coef * fixed_variables[var.index]
+    end
+  end
+  return result
+end
+
+"""
+    objective = extract_multi_objective(
+        objective::JuMP.QuadExpr,
+        x::Vector{Float64},
+        index_map::Dict{Int64, Int64},
+        fixed_variables::Dict{MOI.VariableIndex, Float64}
+    )
+
+Convert the objective from a MathOptInterface function into a julia function of x. Supports only linear single-objective functions in the form of a*var1 + b*var2 + c*var3.
+
+# Arguments
+- `objective::JuMP.AffExpr`: the objective function to transform into a julia function.
+- `x::Vector{Float64}`: a vector representing an individual in the metaheuristic population.
+- `index_map::Dict{Int64, Int64}`: a dictionary mapping indices in the MathOptInterface model to indices of `x`.
+- `fixed_variables::Dict{MOI.VariableIndex, Float64}: a dictionary containing the values of the fixed variables.`
+"""
+function extract_multi_objective(
+  objective::JuMP.QuadExpr,
+  x::Vector{Float64},
+  index_map::Dict{Int64, Int64},
+  fixed_variables::Dict{MOI.VariableIndex, Float64},
+)
+  result = Vector{Float64}(undef, length(objective.terms) + length(objective.aff.terms))
+  # Add all terms in the objective function with variables iteratively.
+  for (i,(var, coef)) in enumerate(objective.aff.terms)
+    # If variable in `index_map`, add corresponding value to the result. Else, the variable is fixed and add the original resulting variable.
+    if haskey(index_map, var.index.value)
+      result[i] = coef * x[index_map[var.index.value]]
+    else
+      result[i] = coef * fixed_variables[var.index]
+    end
+  end
+  j = length(objective.aff.terms)
+
+  for (i, (vars, coef)) in enumerate(objective.terms)
+    # If variable in `index_map`, add corresponding value to the result. Else, the variable is fixed and add the original resulting variable.
+    a = vars.a 
+    b = vars.b
+    if haskey(index_map, a.index.value) && haskey(index_map, b.index.value)
+        result[i + j] = coef * x[index_map[a.index.value]] * x[index_map[b.index.value]]
+    elseif haskey(index_map, a.index.value)
+        result[i+j] = coef * x[index_map[a.index.value]] * fixed_variables[b]
+    elseif haskey(index_map, b.index.value)
+        result[i+j] = coef * fixed_variables[a] * x[index_map[b.index.value]]
+    else
+        result[j+i] = coef * fixed_variables[a] * fixed_variables[b]
+    end
+  end
+
+  return result
+end
+
+"""
     objective = extract_objective(
         objective::JuMP.AffExpr,
         x::Vector{Float64},

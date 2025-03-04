@@ -181,8 +181,6 @@ function multi_objective_generate_alternatives(
     fixed_variable_solutions,
   )
 
-  @info "Problem: " problem
-
   @info "Solving NearOptimalAlternatives problem."
   state = run_alternative_generating_problem!(problem)
 
