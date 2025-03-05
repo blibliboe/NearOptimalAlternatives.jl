@@ -11,12 +11,21 @@ using DataStructures
 
 
 include("results.jl")
-include("alternative-optimisation.jl")
 include("generate-alternatives.jl")
 include("alternative-metaheuristics.jl")
 include("metaheuristic-helper-functions.jl")
 include("mo-alternative-metaheuristics.jl")
 include("experiments.jl")
+
+# algortihm to include
+include("MGA/Distances.jl")
+include("MGA/HSJ.jl")
+include("MGA/alternative-constraints.jl")
+include("MGA/Spores.jl")
+include("MGA/random-vector.jl")
+include("MGA/MinMax.jl")
+
+
 # include("test.jl")
 
 end
