@@ -35,6 +35,9 @@ function generate_alternatives!(
 
   result = AlternativeSolutions([], [])
 
+  @info "Adding the original solution to the result."
+  update_solutions!(result, model)
+
   @info "Creating model for generating alternatives."
   create_alternative_generating_problem!(model, optimality_gap, metric, fixed_variables)
   @info "Solving model."
@@ -46,6 +49,46 @@ function generate_alternatives!(
   for i = 2:n_alternatives
     @info "Reconfiguring model for generating alternatives."
     add_solution!(model, metric)
+    @info "Solving model."
+    JuMP.optimize!(model)
+    @info "Solution #$i/$n_alternatives found." solution_summary(model)
+    update_solutions!(result, model)
+  end
+
+  return result
+end
+
+
+function generate_alternatives_HSJ!(
+  model::JuMP.Model,
+  optimality_gap::Float64,
+  n_alternatives::Int64;
+  fixed_variables::Vector{VariableRef} = VariableRef[],
+)
+  if !is_solved_and_feasible(model)
+    throw(ArgumentError("JuMP model has not been solved."))
+  elseif optimality_gap < 0
+    throw(ArgumentError("Optimality gap (= $optimality_gap) should be at least 0."))
+  elseif n_alternatives < 1
+    throw(ArgumentError("Number of alternatives (= $n_alternatives) should be at least 1."))
+  end
+
+  result = AlternativeSolutions([], [])
+
+  @info "Adding the original solution to the result."
+  update_solutions!(result, model)
+
+  @info "Creating model for generating alternatives."
+  create_alternative_generating_problem_HSJ!(model, optimality_gap, fixed_variables)
+  @info "Solving model."
+  JuMP.optimize!(model)
+  @info "Solution #1/$n_alternatives found." solution_summary(model)
+  update_solutions!(result, model)
+
+  # If n_solutions > 1, we repeat the solving process to generate multiple solutions.
+  for i = 2:n_alternatives
+    @info "Reconfiguring model for generating alternatives."
+    add_solution_HSJ!(model)
     @info "Solving model."
     JuMP.optimize!(model)
     @info "Solution #$i/$n_alternatives found." solution_summary(model)

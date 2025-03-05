@@ -16,6 +16,7 @@ include("generate-alternatives.jl")
 include("alternative-metaheuristics.jl")
 include("metaheuristic-helper-functions.jl")
 include("mo-alternative-metaheuristics.jl")
-include("test.jl")
+include("experiments.jl")
+# include("test.jl")
 
 end
