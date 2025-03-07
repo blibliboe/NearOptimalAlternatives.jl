@@ -1,3 +1,5 @@
+export generate_MGA_HSJ!
+
 """
     result = generate_MGA_HSJ!(
       model::JuMP.Model,
@@ -74,17 +76,32 @@ function MGA_HSJ_initial!(
   optimality_gap::Float64,
   fixed_variables::Vector{VariableRef},
 )
-  # get the nonzero variables
-  non_zero_variables = filter(x -> value(x) != 0, all_variables(model))
-  @info "Non-zero variables: " non_zero_variables
+    optimal_value = objective_value(model)
+    old_objective = objective_function(model)
+    old_objective_sense = objective_sense(model)
+    # get the nonzero variables
+    non_zero_variables = filter(x -> value(x) != 0, all_variables(model))
 
-  # Fix the variables that are not to be changed.
-  fix.(fixed_variables, value.(fixed_variables), force = true)
+    # Fix the variables that are not to be changed.
+    fix.(fixed_variables, value.(fixed_variables), force = true)
 
-  # Objective maximising the distance between variables and the previous optimal solution.
-  @objective(model, Min, sum(non_zero_variables))
+    # Objective maximising the distance between variables and the previous optimal solution.
+    @objective(model, Min, sum(non_zero_variables))
 
-  create_alternative_constraints!(model, optimality_gap)
+    # Constraint ensuring maximum difference in objective value to optimal solution. The sign of `optimal_value` is used to ensure that a negative `optimal_value` does not lead to an infeasible bound requiring a better than optimal solution.
+    if old_objective_sense == MAX_SENSE
+    @constraint(
+        model,
+        original_objective,
+        old_objective ≥ optimal_value * (1 - optimality_gap * sign(optimal_value))
+    )
+    else
+    @constraint(
+        model,
+        original_objective,
+        old_objective ≤ optimal_value * (1 + optimality_gap * sign(optimal_value))
+    )
+    end
 end
 
 

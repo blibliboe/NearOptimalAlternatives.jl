@@ -63,31 +63,75 @@ end
 
 
 
-model = ddmodel()
+model_distance = ddmodel()
+model_HSJ = ddmodel()
+model_Min_Max = ddmodel()
+model_Rand_Vec = ddmodel()
+model_SPORES = ddmodel()
 
-alternative_solutions = 100
+alternative_solutions = 40
 
-# result = generate_alternatives!(model, 1.0, alternative_solutions)
+result_distances = generate_MGA_distances!(model_distance, 1.0, alternative_solutions)
+result_HSJ = generate_MGA_HSJ!(model_HSJ, 1.0, alternative_solutions)
+result_Min_Max = generate_MGA_Min_Max!(model_Min_Max, 1.0, alternative_solutions)
+result_Rand_Vec = generate_MGA_Rand_Vec!(model_Rand_Vec, 1.0, alternative_solutions)
+result_SPORES = generate_MGA_SPORES!(model_SPORES, 1.0, alternative_solutions)
 
-result = generate_alternatives_HSJ!(model, 1.0, alternative_solutions)
 
-solutions = zeros((alternative_solutions + 1, 2))
+solutions_distances = zeros((alternative_solutions + 1, 2))
+solutions_HSJ = zeros((alternative_solutions + 1, 2))
+solutions_Min_Max = zeros((alternative_solutions + 1, 2))
+solutions_Rand_Vec = zeros((alternative_solutions + 1, 2))
+solutions_SPORES = zeros((alternative_solutions + 1, 2))
 
-for (k,v) in enumerate(all_variables(model))
+for (k,v) in enumerate(all_variables(model_distance))
     for i in 1:alternative_solutions + 1
-        setindex!(solutions, result.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
+        setindex!(solutions_distances, result_distances.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
     end
 end
 
-println(solutions)
 
-# min_distances = spread(solutions, alternative_solutions + 1)
+for (k,v) in enumerate(all_variables(model_HSJ))
+    for i in 1:alternative_solutions + 1
+        setindex!(solutions_HSJ, result_HSJ.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
+    end
+end
 
-# println(min_distances)
+for (k,v) in enumerate(all_variables(model_Min_Max))
+    for i in 1:alternative_solutions + 1
+        setindex!(solutions_Min_Max, result_Min_Max.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
+    end
+end
 
-volumes = convex_hull_volume(solutions, alternative_solutions + 1)
-println(volumes)
+for (k,v) in enumerate(all_variables(model_Rand_Vec))
+    for i in 1:alternative_solutions + 1
+        setindex!(solutions_Rand_Vec, result_Rand_Vec.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
+    end
+end
 
+for (k,v) in enumerate(all_variables(model_SPORES))
+    for i in 1:alternative_solutions + 1
+        setindex!(solutions_SPORES, result_SPORES.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
+    end
+end
+
+println(solutions_distances)
+println(solutions_HSJ)
+println(solutions_Min_Max)
+println(solutions_Rand_Vec)
+println(solutions_SPORES)
+
+volumes_distances = convex_hull_volume(solutions_distances, alternative_solutions + 1)
+volumes_HSJ = convex_hull_volume(solutions_HSJ, alternative_solutions + 1)
+volumes_Min_Max = convex_hull_volume(solutions_Min_Max, alternative_solutions + 1)
+volumes_Rand_Vec = convex_hull_volume(solutions_Rand_Vec, alternative_solutions + 1)
+volumes_SPORES = convex_hull_volume(solutions_SPORES, alternative_solutions + 1)
+
+println(volumes_distances)
+println(volumes_HSJ)
+println(volumes_Min_Max)
+println(volumes_Rand_Vec)
+println(volumes_SPORES)
 
 # println(volume(VPolygon(convex_hull([[2, 2], [6, 0], [1.67, 3], [1.8, 3.4], [7.2, 1.6], [6.67, 0]]))))
 

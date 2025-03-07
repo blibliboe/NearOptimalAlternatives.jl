@@ -81,6 +81,10 @@ function MGA_distances_initial!(
     metric::Distances.SemiMetric,
     fixed_variables::Vector{VariableRef},
   )
+        
+    optimal_value = objective_value(model)
+    old_objective = objective_function(model)
+    old_objective_sense = objective_sense(model)
   
     # Store all variables and solution values.
     variables, solution = extract_variables(model)
@@ -90,8 +94,22 @@ function MGA_distances_initial!(
   
     # Objective maximising the distance between variables and the previous optimal solution.
     @objective(model, Max, Distances.evaluate(metric, variables, solution))
-  
-    create_alternative_constraints!(model, optimality_gap)
+
+
+    # Constraint ensuring maximum difference in objective value to optimal solution. The sign of `optimal_value` is used to ensure that a negative `optimal_value` does not lead to an infeasible bound requiring a better than optimal solution.
+    if old_objective_sense == MAX_SENSE
+    @constraint(
+        model,
+        original_objective,
+        old_objective ≥ optimal_value * (1 - optimality_gap * sign(optimal_value))
+    )
+    else
+    @constraint(
+        model,
+        original_objective,
+        old_objective ≤ optimal_value * (1 + optimality_gap * sign(optimal_value))
+    )
+    end
   
 end
 
