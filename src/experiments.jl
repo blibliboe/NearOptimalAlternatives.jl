@@ -10,13 +10,15 @@ function ddmodel()
     model = Model(optimizer)
 
     @variable(model, 0.0 <= x <= 10.0)
-    @variable(model, 0.0 <= y <= 10.0)
+    @variable(model, 0.0 <= y <= 30.0)
 
     #constraints to make the problem a bit more difficult
-    @constraint(model, 3x + y - 8 ≥ 0.0)
-    @constraint(model, x + 2y - 6 ≥ 0.0)
+    @constraint(model, 6x + y - 13 ≥ 0.0)
+    @constraint(model, x + y - 3.5 ≥ 0.0)
+    @constraint(model, 0.4x + y - 2 ≥ 0.0)
+    @constraint(model, 3.5x + y -8.5 ≥ 0.0)
     # corner point (2, 2)
-    @constraint(model, - 3x + y + 20 ≥ 0.0)
+    @constraint(model, - 3x + y + 15.9 ≥ 0.0)
     # corner points (6, 0) , (6.67, 0)
     @constraint(model, - 3x + y + 2 ≤ 0.0)
     # corner point (1.67, 3)
@@ -63,75 +65,117 @@ end
 
 
 
-model_distance = ddmodel()
-model_HSJ = ddmodel()
-model_Min_Max = ddmodel()
-model_Rand_Vec = ddmodel()
-model_SPORES = ddmodel()
 
-alternative_solutions = 40
+# Function to select the method and return the corresponding solutions and volumes
+function select_method(method::Symbol, slack, alternative_solutions)
+    model = ddmodel()
+    result = nothing
+    solutions = zeros((alternative_solutions + 1, 2))
 
-result_distances = generate_MGA_distances!(model_distance, 1.0, alternative_solutions)
-result_HSJ = generate_MGA_HSJ!(model_HSJ, 1.0, alternative_solutions)
-result_Min_Max = generate_MGA_Min_Max!(model_Min_Max, 1.0, alternative_solutions)
-result_Rand_Vec = generate_MGA_Rand_Vec!(model_Rand_Vec, 1.0, alternative_solutions)
-result_SPORES = generate_MGA_SPORES!(model_SPORES, 1.0, alternative_solutions)
+    solvetime = @elapsed begin
 
+        if method == :distances
+            result = generate_MGA_distances!(model, slack, alternative_solutions)
+        elseif method == :HSJ
+            result = generate_MGA_HSJ!(model, slack, alternative_solutions)
+        elseif method == :Min_Max
+            result = generate_MGA_Min_Max!(model, slack, alternative_solutions)
+        elseif method == :Rand_Vec
+            result = generate_MGA_Rand_Vec!(model, slack, alternative_solutions)
+        elseif method == :SPORES
+            result = generate_MGA_SPORES!(model, slack, alternative_solutions)
+        else
+            error("Unknown method: $method")
+        end
 
-solutions_distances = zeros((alternative_solutions + 1, 2))
-solutions_HSJ = zeros((alternative_solutions + 1, 2))
-solutions_Min_Max = zeros((alternative_solutions + 1, 2))
-solutions_Rand_Vec = zeros((alternative_solutions + 1, 2))
-solutions_SPORES = zeros((alternative_solutions + 1, 2))
-
-for (k,v) in enumerate(all_variables(model_distance))
-    for i in 1:alternative_solutions + 1
-        setindex!(solutions_distances, result_distances.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
     end
+
+    for (k, v) in enumerate(all_variables(model))
+        for i in 1:alternative_solutions + 1
+            setindex!(solutions, result.solutions[i][v], i + (k - 1) * (alternative_solutions + 1))
+        end
+    end
+
+
+
+    volumes = convex_hull_volume(solutions, alternative_solutions + 1)
+    return solutions, volumes, solvetime
+end
+
+alternative_solutions = 20
+slack = 1.3
+
+methods = [:distances, :HSJ, :Min_Max, :Rand_Vec, :SPORES]
+# methods = [:SPORES]
+# methods = [:Min_Max]
+results = Dict{Symbol, Tuple{Array{Float64, 2}, Array{Float64, 1}}}()
+runtimes = Dict{Symbol, Float64}()
+for method in methods
+    solutions, volumes, solvetime = select_method(method, slack, alternative_solutions)
+    
+    results[method] = (solutions, volumes)
+    runtimes[method] = solvetime
+end
+
+for (name, (sol, vol)) in results
+    println("Method: $name")
+    println("Solutions: $sol")
+    println("Volumes: $vol")
 end
 
 
-for (k,v) in enumerate(all_variables(model_HSJ))
-    for i in 1:alternative_solutions + 1
-        setindex!(solutions_HSJ, result_HSJ.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
+function plotting(results)
+    # Plotting the solutions in different plots
+    for (name, (sol, _)) in results
+        scatter(sol[:, 1], sol[:, 2], xlabel="x", ylabel="y", title="Convex hull found by $name", xaxis=[0, 8], yaxis=[0, 4], label=false)
+        plot!(VPolygon(convex_hull([sol[i, :] for i in 1:alternative_solutions + 1])), xlabel="x", ylabel="y")
+        # for i in 1:size(sol, 1)
+        #     annotate!(sol[i, 1], sol[i, 2], text(string(i - 1), :left))
+        # end
+        savefig("./plots/Solutions for $name.png")
     end
+
+    plot()
+    for (name, (sol, _)) in results
+        
+        plot!(VPolygon(convex_hull([sol[i, :] for i in 1:alternative_solutions + 1])), title="Convex Hull of Solutions", xlabel="x", ylabel="y", label="$name")
+        # for i in 1:size(sol, 1)
+        #     annotate!(sol[i, 1], sol[i, 2], text(string(i - 1), :left))
+        # end
+        savefig("./plots/All hull shapes.png")
+    end
+
+    # Plotting the volumes in the same plot
+    plot()
+    for (name, (_, vol)) in results
+        plot!(vol[2:end], label="Volumes for $name", xlabel="Iteration", ylabel="Volume", title="Volumes over Iterations")
+    end
+    plot!(fill(7.7465, 20), label="Maximal Convex Hull", xlabel="Iteration", ylabel="Volume", title="Volumes over Iterations")
+
+    savefig("./plots/Volumes for all methods.png")
+
+
+    plot()
+    # actual convex hull (2.5,1),(2, 1.5),(5.92, 1.86),(5.3, 0),(5, 0),(1.67, 3),(1.75, 3.25), (1.8,2.2) 
+    actual = zeros((8, 2))
+    actual[1, :] = [2.5, 1]
+    actual[2, :] = [2, 1.5]
+    actual[3, :] = [5.92, 1.86]
+    actual[4, :] = [5.3, 0]
+    actual[5, :] = [5, 0]
+    actual[6, :] = [1.67, 3]
+    actual[7, :] = [1.75, 3.25]
+    actual[8, :] = [1.8, 2.2]
+    println("Actual solutions: ", actual)
+    scatter(actual[:, 1], actual[:, 2], label="True solutions", xlabel="x", ylabel="y", title="True solutions of the convex space in 2D", xaxis=[0, 8], yaxis=[0, 4])
+    plot!(VPolygon(convex_hull([actual[i,:] for i in 1:8])), title="True Convex Hull", xlabel="x", ylabel="y")
+
+
+    savefig("./plots/True solution.png")
+    println("Actual volume: ", volume(VPolygon(convex_hull([actual[i,:] for i in 1:8]))))
 end
 
-for (k,v) in enumerate(all_variables(model_Min_Max))
-    for i in 1:alternative_solutions + 1
-        setindex!(solutions_Min_Max, result_Min_Max.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
-    end
-end
-
-for (k,v) in enumerate(all_variables(model_Rand_Vec))
-    for i in 1:alternative_solutions + 1
-        setindex!(solutions_Rand_Vec, result_Rand_Vec.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
-    end
-end
-
-for (k,v) in enumerate(all_variables(model_SPORES))
-    for i in 1:alternative_solutions + 1
-        setindex!(solutions_SPORES, result_SPORES.solutions[i][v] , i + (k - 1) * (alternative_solutions + 1))
-    end
-end
-
-println(solutions_distances)
-println(solutions_HSJ)
-println(solutions_Min_Max)
-println(solutions_Rand_Vec)
-println(solutions_SPORES)
-
-volumes_distances = convex_hull_volume(solutions_distances, alternative_solutions + 1)
-volumes_HSJ = convex_hull_volume(solutions_HSJ, alternative_solutions + 1)
-volumes_Min_Max = convex_hull_volume(solutions_Min_Max, alternative_solutions + 1)
-volumes_Rand_Vec = convex_hull_volume(solutions_Rand_Vec, alternative_solutions + 1)
-volumes_SPORES = convex_hull_volume(solutions_SPORES, alternative_solutions + 1)
-
-println(volumes_distances)
-println(volumes_HSJ)
-println(volumes_Min_Max)
-println(volumes_Rand_Vec)
-println(volumes_SPORES)
+println("Runtimes: ", runtimes)
 
 # println(volume(VPolygon(convex_hull([[2, 2], [6, 0], [1.67, 3], [1.8, 3.4], [7.2, 1.6], [6.67, 0]]))))
 

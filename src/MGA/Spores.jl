@@ -128,6 +128,9 @@ function MGA_SPORES_alternatives(model::JuMP.Model, weights::Vector{Float64})
     # get the nonzero variables
     variables = [v * weights[i] for (i, v) in enumerate(all_variables(model))]  
 
+    @info "Adding the weights to the objective function." weights
+    @info "The new objective function is: " variables
+
     # Update objective by adding the distance between variables and the previous optimal solution.
     @objective(model, Min, variables)
 end

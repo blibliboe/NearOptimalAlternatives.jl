@@ -119,6 +119,7 @@ function MGA_Min_Max_alternatives!(model::JuMP.Model)
   
     n = length(all_variables(model))
     random_array = rand([-1, 0, 1], n)
+    @info "Random array: $random_array"
 
     variables = [v * random_array[i] for (i, v) in enumerate(all_variables(model))]
 
