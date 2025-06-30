@@ -2,6 +2,10 @@ using Plots
 using Gurobi
 using LazySets
 
+
+
+
+
 ```
 Model for the 2d experiment
 ```
@@ -36,7 +40,7 @@ function ddmodel()
     @info "Objective function:" objective_function(model)
     @info "Objective function value: " objective_value(model)
     @info "Variable values: " value.(all_variables(model))[1], value.(all_variables(model))[2]
-    return model
+    return model, [x, y]
 end
 
 ```
@@ -64,29 +68,16 @@ function convex_hull_volume(solutions, alternative_solutions)
 end
 
 
-
-
 # Function to select the method and return the corresponding solutions and volumes
 function select_method(method::Symbol, slack, alternative_solutions)
-    model = ddmodel()
+    model, variables = ddmodel()
     result = nothing
     solutions = zeros((alternative_solutions + 1, 2))
 
     solvetime = @elapsed begin
 
-        if method == :distances
-            result = generate_MGA_distances!(model, slack, alternative_solutions)
-        elseif method == :HSJ
-            result = generate_MGA_HSJ!(model, slack, alternative_solutions)
-        elseif method == :Min_Max
-            result = generate_MGA_Min_Max!(model, slack, alternative_solutions)
-        elseif method == :Rand_Vec
-            result = generate_MGA_Rand_Vec!(model, slack, alternative_solutions)
-        elseif method == :SPORES
-            result = generate_MGA_SPORES!(model, slack, alternative_solutions)
-        else
-            error("Unknown method: $method")
-        end
+        result = MGA!(model, slack, alternative_solutions, variables; method = method)
+
 
     end
 
@@ -105,15 +96,16 @@ end
 alternative_solutions = 20
 slack = 1.3
 
-methods = [:distances, :HSJ, :Min_Max, :Rand_Vec, :SPORES]
+methods = [:Dist, :HSJ, :Min_Max, :Rand_Vec, :Spores]
+method_names = [:Distances, :HSJ, :Min_Max, :Random_Vector, :Spores]
 # methods = [:SPORES]
 # methods = [:Min_Max]
 results = Dict{Symbol, Tuple{Array{Float64, 2}, Array{Float64, 1}}}()
 runtimes = Dict{Symbol, Float64}()
-for method in methods
+for (i, method) in enumerate(methods)
     solutions, volumes, solvetime = select_method(method, slack, alternative_solutions)
     
-    results[method] = (solutions, volumes)
+    results[method_names[i]] = (solutions, volumes)
     runtimes[method] = solvetime
 end
 
@@ -126,8 +118,10 @@ end
 
 function plotting(results)
     # Plotting the solutions in different plots
-    for (name, (sol, _)) in results
-        scatter(sol[:, 1], sol[:, 2], xlabel="x", ylabel="y", title="Convex hull found by $name", xaxis=[0, 8], yaxis=[0, 4], label=false)
+    for (name, (sol, _))in results
+
+    
+        scatter(sol[:, 1], sol[:, 2], xlabel="x", ylabel="y", title="Alternatives found by $name", xaxis=[0, 8], yaxis=[0, 4], label=false)
         plot!(VPolygon(convex_hull([sol[i, :] for i in 1:alternative_solutions + 1])), xlabel="x", ylabel="y")
         # for i in 1:size(sol, 1)
         #     annotate!(sol[i, 1], sol[i, 2], text(string(i - 1), :left))
@@ -167,15 +161,34 @@ function plotting(results)
     actual[7, :] = [1.75, 3.25]
     actual[8, :] = [1.8, 2.2]
     println("Actual solutions: ", actual)
-    scatter(actual[:, 1], actual[:, 2], label="True solutions", xlabel="x", ylabel="y", title="True solutions of the convex space in 2D", xaxis=[0, 8], yaxis=[0, 4])
-    plot!(VPolygon(convex_hull([actual[i,:] for i in 1:8])), title="True Convex Hull", xlabel="x", ylabel="y")
+    scatter(actual[:, 1], actual[:, 2], label="True solutions", xlabel="x", ylabel="y", xaxis=[0, 8], yaxis=[0, 4])
+    plot!(VPolygon(convex_hull([actual[i,:] for i in 1:8])), title="Near-optimal solutions space", xlabel="x", ylabel="y")
 
 
     savefig("./plots/True solution.png")
     println("Actual volume: ", volume(VPolygon(convex_hull([actual[i,:] for i in 1:8]))))
+    plot()
+
+    dominance = zeros((5, 2))
+    dominance[1, :] = [2.5, 1]
+    dominance[2, :] = [2, 1.5]
+    # actual[3, :] = [5.92, 1.86]
+    # actual[4, :] = [5.3, 0]
+    dominance[3, :] = [5, 0]
+    dominance[4, :] = [1.67, 3]
+    # actual[7, :] = [1.75, 3.25]
+    dominance[5, :] = [1.8, 2.2]
+    println("Actual solutions: ", dominance)
+    scatter(dominance[:, 1], dominance[:, 2], label="Non-dominated alternatives", xlabel="x", ylabel="y", title="Structurally different solutions", xaxis=[0, 8], yaxis=[0, 4])
+    plot!(VPolygon(convex_hull([dominance[i,:] for i in 1:5])), xlabel="x", ylabel="y")
+
+
+    savefig("./plots/dominance.png")
+    println("Actual volume: ", volume(VPolygon(convex_hull([dominance[i,:] for i in 1:5]))))
 end
 
 println("Runtimes: ", runtimes)
+plotting(results)
 
 # println(volume(VPolygon(convex_hull([[2, 2], [6, 0], [1.67, 3], [1.8, 3.4], [7.2, 1.6], [6.67, 0]]))))
 

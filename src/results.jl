@@ -19,7 +19,7 @@ function update_solutions!(results::AlternativeSolutions, model::JuMP.Model)
   # Retrieve all variable values from JuMP model.
   solution = Dict{VariableRef, Float64}()
   for v in all_variables(model)
-    @info "Variable $v has value $(value(v))"
+    # @info "Variable $v has value $(value(v))"
     solution[v] = value(v)
   end
   push!(results.solutions, solution)
