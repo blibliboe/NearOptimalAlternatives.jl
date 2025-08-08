@@ -8,7 +8,7 @@
     @variable(model, 0 ≤ x_2 ≤ 1)
     @objective(model, Max, x_1 + x_2)
 
-    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(model, 0.1, 5)
+    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(model, 0.1, all_variables(model), 5)
   end
 
   @testset "Make sure error is thrown when incorrect optimality_gap." begin
@@ -21,7 +21,7 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(model, -0.1, 5)
+    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(model, -0.1, all_variables(model), 5)
   end
 
   @testset "Make sure error is thrown when incorrect n_alternatives." begin
@@ -34,7 +34,7 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(model, 0.1, 0)
+    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(model, 0.1, all_variables(model), 0)
   end
 
   @testset "Test regular run with one alternative." begin
@@ -47,7 +47,7 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    results = NearOptimalAlternatives.generate_alternatives!(model, 0.1, 1)
+    results = NearOptimalAlternatives.generate_alternatives!(model, 0.1, all_variables(model), 1)
 
     # Test that `results` contains one solution with 2 variables, and an objective value between 1.8 and 2.0.
     @test length(results.solutions) == 1 &&
@@ -67,7 +67,7 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    results = NearOptimalAlternatives.generate_alternatives!(model, 0.1, 1, fixed_variables = [x_2])
+    results = NearOptimalAlternatives.generate_alternatives!(model, 0.1, all_variables(model), 1; fixed_variables = [x_2])
 
     # Test that `results` contains one solution with 2 variables, and an objective value between 1.8 and 2.0. Also, `x_2` should remain around 1.0 and `x_1` should be between 0.8 and 1.0.
     @test length(results.solutions) == 1 &&
@@ -90,7 +90,7 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    results = NearOptimalAlternatives.generate_alternatives!(model, 0.1, 2)
+    results = NearOptimalAlternatives.generate_alternatives!(model, 0.1, all_variables(model), 2)
 
     # Test that `results` contains 2 solutions with two variables each, where the objective values of both solutions are between 1.8 and 2.0.
     @test length(results.solutions) == 2 &&
@@ -115,7 +115,8 @@
     results = NearOptimalAlternatives.generate_alternatives!(
       model,
       0.1,
-      1,
+      all_variables(model),
+      1;
       metric = WeightedSqEuclidean([0.5, 10]),
     )
 
@@ -288,6 +289,7 @@ end
     results = NearOptimalAlternatives.generate_alternatives!(
       model,
       0.1,
+      all_variables(model),
       1,
       metric = WeightedSqEuclidean([0.5, 1]),
     )
