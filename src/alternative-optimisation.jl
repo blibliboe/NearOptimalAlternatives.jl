@@ -6,7 +6,7 @@ const METHOD_DISPATCH_UPDATE = Dict{Symbol, Function}(
     # :HSJ => HSJ_update!,
     # :Spores => SPORES_update!,
     # :Min_Max_Variables => MM_update!,
-    # :Random_Vector => RV_update!,
+    :Random_Vector => Random_Vector_update!,
     # :Directionally_Weighted_Variables => DW_update!,
     :Max_Distance => Dist_update!
 )
@@ -16,7 +16,7 @@ const METHOD_DISPATCH_INITIAL = Dict{Symbol, Function}(
     # :HSJ => HSJ_update!,
     # :Spores => SPORES_update!,
     # :Min_Max_Variables => MM_update!,
-    # :Random_Vector => RV_update!,
+    :Random_Vector => Random_Vector_initial!,
     # :Directionally_Weighted_Variables => DW_update!,
     :Max_Distance => Dist_initial!
 )

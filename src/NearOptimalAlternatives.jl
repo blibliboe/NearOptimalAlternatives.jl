@@ -9,6 +9,7 @@ using Metaheuristics
 using DataStructures
 
 include("MGA-Methods/Max-distance.jl")
+include("MGA-Methods/Random-Vector.jl")
 
 include("results.jl")
 include("alternative-optimisation.jl")
