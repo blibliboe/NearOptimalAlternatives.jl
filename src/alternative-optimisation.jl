@@ -4,7 +4,7 @@ It is used to dynamically select the appropriate function based on the method sp
 """
 const METHOD_DISPATCH_UPDATE = Dict{Symbol, Function}(
     # :HSJ => HSJ_update!,
-    # :Spores => SPORES_update!,
+    :Spores => Spores_update!,
     # :Min_Max_Variables => MM_update!,
     # :Random_Vector => RV_update!,
     # :Directionally_Weighted_Variables => DW_update!,
@@ -14,7 +14,7 @@ const METHOD_DISPATCH_UPDATE = Dict{Symbol, Function}(
 
 const METHOD_DISPATCH_INITIAL = Dict{Symbol, Function}(
     # :HSJ => HSJ_update!,
-    # :Spores => SPORES_update!,
+    :Spores => Spores_initial!,
     # :Min_Max_Variables => MM_update!,
     # :Random_Vector => RV_update!,
     # :Directionally_Weighted_Variables => DW_update!,
