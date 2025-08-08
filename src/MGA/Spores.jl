@@ -12,6 +12,7 @@ function MGA_SPORES_update!(model::JuMP.Model, variables::AbstractArray{T,N}, we
 
     # update these variables based on their sign
     variables = [v * weights[i] for (i, v) in enumerate(variables)]
+    set_objective_sense(model, FEASIBILITY_SENSE)
 
     # Update objective by adding the distance between variables and the previous optimal solution.
     @objective(model, Min, sum(variables))

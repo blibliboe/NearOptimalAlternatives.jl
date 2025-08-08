@@ -104,8 +104,8 @@ function approximately_unique_solutions(solutions; threshold::Float64 = 0.1)::Ve
     for i in 1:length(solutions)
         is_unique = true
         for j in 1:length(unique_solutions)
-            diff_count = sum(abs.(solutions[i] .- unique_solutions[j]) .> threshold)
-            if diff_count < ceil(Int, 0.1)
+            diff_count = abs.(solutions[i] .- unique_solutions[j]) .< threshold
+            if all(diff_count)
                 is_unique = false
                 break
             end

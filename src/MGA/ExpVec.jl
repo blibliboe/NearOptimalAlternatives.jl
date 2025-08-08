@@ -1,15 +1,18 @@
-export MGA_HSJ_update!
+export MGA_EV_update!
+
 
 """
   TODO
 """
-function MGA_HSJ_update!(model::JuMP.Model, variables::AbstractArray{T,N}, weights::Vector{Float64}) where {T<:Union{VariableRef,AffExpr},N}
+function MGA_EV_update!(model::JuMP.Model, variables::AbstractArray{T,N}, weights::Vector{Float64}) where {T<:Union{VariableRef,AffExpr},N}
   # new objective function consist of the n variables in variables
   for (i, v) in enumerate(variables)
-    if value(v) == 0
-      weights[i] = 0
-    else
-      weights[i] = 1
+    weights[i] = rand([1, 0, -1]) # for now assuming every variable has positive coefficient
+  end
+
+  while all(w -> w != -1, weights)
+    for (i, v) in enumerate(variables)
+      weights[i] = rand([1, 0, -1])
     end
   end
 

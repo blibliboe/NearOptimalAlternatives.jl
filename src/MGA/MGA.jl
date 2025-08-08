@@ -20,8 +20,11 @@ function MGA!(
         throw(ArgumentError("Number of alternatives (= $n_alternatives) should be at least 1."))
     end
 
+
+
     result = AlternativeSolutions([], [])
     weights = zeros(length(variables))
+    
 
     @info "Adding the original solution to the result."
     update_solutions!(result, model)
@@ -31,7 +34,7 @@ function MGA!(
 
     @info "Solving model."
     JuMP.optimize!(model)
-    @info "Solution #1/$n_alternatives found." solution_summary(model)
+    @info "Solution #1/$n_alternatives found."# solution_summary(model)
     update_solutions!(result, model)
 
     # If n_solutions > 1, we repeat the solving process to generate multiple solutions.
@@ -49,17 +52,19 @@ function MGA!(
             MGA_DV_update!(model, variables, weights)
         elseif method == :Dist
             MGA_Dist_update!(model, variables; metric = metric)
+        elseif method == :Exp_Vec
+            MGA_EV_update!(model, variables, weights)
         else
             throw(ArgumentError("Method $method is not supported."))
         end
 
-        @info "Resetting the model"
-        MathOptInterface.Utilities.reset_optimizer(model)
+        # @info "Resetting the model"
+        # MathOptInterface.Utilities.reset_optimizer(model)
 
         @info "Solving model."
         JuMP.optimize!(model)
 
-        @info "Solution #$i/$n_alternatives found." solution_summary(model)
+        @info "Solution #$i/$n_alternatives found."# solution_summary(model)
         update_solutions!(result, model)
     end
 
@@ -95,6 +100,8 @@ function MGA_initial!(
         MGA_DV_update!(model, variables, weights)
     elseif method == :Dist
         MGA_Dist_initial!(model, variables; metric = metric)
+    elseif method == :Exp_Vec
+        MGA_EV_update!(model, variables, weights)
     else
         throw(ArgumentError("Method $method is not supported."))
     end

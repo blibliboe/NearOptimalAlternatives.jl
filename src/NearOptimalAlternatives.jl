@@ -29,6 +29,7 @@ include("MGA/Spores.jl")
 include("MGA/random-vector.jl")
 include("MGA/MinMax.jl")
 include("MGA/DomVec.jl")
+include("MGA/ExpVec.jl")
 include("MGA/MGA.jl")
 
 # include("experiments.jl")

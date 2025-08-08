@@ -96,8 +96,8 @@ end
 alternative_solutions = 20
 slack = 1.3
 
-methods = [:Dist, :HSJ, :Min_Max, :Rand_Vec, :Spores]
-method_names = [:Distances, :HSJ, :Min_Max, :Random_Vector, :Spores]
+methods = [:Dist, :HSJ, :Min_Max, :Rand_Vec, :Spores, :Dom_Vec]
+method_names = [:Distances, :HSJ, :Min_Max, :Random_Vector, :Spores, :Dom_Vec]
 # methods = [:SPORES]
 # methods = [:Min_Max]
 results = Dict{Symbol, Tuple{Array{Float64, 2}, Array{Float64, 1}}}()
