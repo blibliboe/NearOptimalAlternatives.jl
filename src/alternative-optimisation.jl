@@ -64,7 +64,14 @@ function create_alternative_generating_problem!(
     throw(ArgumentError("Method $modeling_method is not supported."))
   end
 
-  f(model, variables, fixed_variables; weights = weights, metric = metric)
+  f(
+    model,
+    variables,
+    fixed_variables;
+    weights = weights,
+    metric = metric,
+    old_objective = old_objective,
+  )
 
   @info "Adding the old objective function as a constraint to the model"
   # Constraint ensuring maximum difference in objective value to optimal solution. The sign of `optimal_value` is used to ensure that a negative `optimal_value` does not lead to an infeasible bound requiring a better than optimal solution.
