@@ -8,7 +8,7 @@
     @variable(model, 0 ≤ x_2 ≤ 1)
     @objective(model, Max, x_1 + x_2)
 
-    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(model, 0.1, all_variables(model), 5)
+    @test_throws ArgumentError generate_alternatives!(model, 0.1, JuMP.all_variables(model), 5)
   end
 
   @testset "Make sure error is thrown when incorrect optimality_gap." begin
@@ -21,7 +21,7 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(model, -0.1, all_variables(model), 5)
+    @test_throws ArgumentError generate_alternatives!(model, -0.1, JuMP.all_variables(model), 5)
   end
 
   @testset "Make sure error is thrown when incorrect n_alternatives." begin
@@ -34,7 +34,7 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(model, 0.1, all_variables(model), 0)
+    @test_throws ArgumentError generate_alternatives!(model, 0.1, JuMP.all_variables(model), 0)
   end
 end
 
@@ -50,7 +50,7 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives(
+    @test_throws ArgumentError generate_alternatives(
       model,
       0.1,
       5,
@@ -70,7 +70,7 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives(
+    @test_throws ArgumentError generate_alternatives(
       model,
       -0.1,
       5,
@@ -90,7 +90,7 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives(
+    @test_throws ArgumentError generate_alternatives(
       model,
       0.1,
       0,
@@ -110,7 +110,7 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    results = NearOptimalAlternatives.generate_alternatives(model, 0.1, 1, algorithm)
+    results = generate_alternatives(model, 0.1, 1, algorithm)
 
     # Test that `results` contains one solution with 2 variables, and an objective value between 1.8 and 2.0.
     @test length(results.solutions) == 1 &&
@@ -132,7 +132,7 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    results = NearOptimalAlternatives.generate_alternatives(
+    results = generate_alternatives(
       model,
       0.1,
       1,
@@ -163,7 +163,7 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    results = NearOptimalAlternatives.generate_alternatives(model, 0.1, 2, algorithm)
+    results = generate_alternatives(model, 0.1, 2, algorithm)
 
     # Test that `results` contains 2 solutions with two variables each, where the objective values of both solutions are between 1.8 and 2.0.
     @test length(results.solutions) == 2 &&
@@ -187,17 +187,17 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    results = NearOptimalAlternatives.generate_alternatives(
+    results = generate_alternatives(
       model,
       0.1,
       1,
       algorithm,
       metric = WeightedSqEuclidean([0.5, 10]),
     )
-    results = NearOptimalAlternatives.generate_alternatives!(
+    results = generate_alternatives!(
       model,
       0.1,
-      all_variables(model),
+      JuMP.all_variables(model),
       1,
       metric = WeightedSqEuclidean([0.5, 1]),
     )

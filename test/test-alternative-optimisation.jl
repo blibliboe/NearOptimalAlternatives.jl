@@ -16,7 +16,7 @@
       model,
       0.1,
       VariableRef[],
-      all_variables(model);
+      JuMP.all_variables(model);
       metric = SqEuclidean(),
     )
     # Test that the correct alternative problem is created and that `x_2` is fixed.
@@ -42,7 +42,7 @@
       model,
       0.1,
       VariableRef[],
-      all_variables(model);
+      JuMP.all_variables(model);
       metric = SqEuclidean(),
     )
     # Test that the correct alternative problem is created.
@@ -74,7 +74,7 @@
       model,
       0.1,
       [x_2],
-      all_variables(model);
+      JuMP.all_variables(model);
       metric = SqEuclidean(),
     )
     # Test that the correct alternative problem is created and that `x_2` is fixed.
@@ -105,7 +105,7 @@ end
   x_1_res = value(x_1)
   x_2_res = value(x_2)
 
-  update_objective_function!(model, all_variables(model); metric = SqEuclidean())
+  update_objective_function!(model, JuMP.all_variables(model); metric = SqEuclidean())
   # Test that the correct alternative problem is created and that `x_2` is fixed.
   @test objective_sense(model) == MAX_SENSE &&
         objective_function(model) == QuadExpr(

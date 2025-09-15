@@ -9,7 +9,7 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    results = NearOptimalAlternatives.generate_alternatives!(model, 0.1, all_variables(model), 1; modeling_method = :Max_Distance)
+    results = generate_alternatives!(model, 0.1, JuMP.all_variables(model), 1; modeling_method = :Max_Distance)
 
     # Test that `results` contains one solution with 2 variables, and an objective value between 1.8 and 2.0.
     @test length(results.solutions) == 1 &&
@@ -29,7 +29,7 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    results = NearOptimalAlternatives.generate_alternatives!(model, 0.1, all_variables(model), 1; fixed_variables = [x_2], modeling_method = :Max_Distance)
+    results = generate_alternatives!(model, 0.1, JuMP.all_variables(model), 1; fixed_variables = [x_2], modeling_method = :Max_Distance)
 
     # Test that `results` contains one solution with 2 variables, and an objective value between 1.8 and 2.0. Also, `x_2` should remain around 1.0 and `x_1` should be between 0.8 and 1.0.
     @test length(results.solutions) == 1 &&
@@ -52,7 +52,7 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    results = NearOptimalAlternatives.generate_alternatives!(model, 0.1, all_variables(model), 2; modeling_method = :Max_Distance)
+    results = generate_alternatives!(model, 0.1, JuMP.all_variables(model), 2; modeling_method = :Max_Distance)
 
     # Test that `results` contains 2 solutions with two variables each, where the objective values of both solutions are between 1.8 and 2.0.
     @test length(results.solutions) == 2 &&
@@ -74,10 +74,10 @@
     @objective(model, Max, x_1 + x_2)
     JuMP.optimize!(model)
 
-    results = NearOptimalAlternatives.generate_alternatives!(
+    results = generate_alternatives!(
       model,
       0.1,
-      all_variables(model),
+      JuMP.all_variables(model),
       1;
       metric = WeightedSqEuclidean([0.5, 10]),
       modeling_method = :Max_Distance
