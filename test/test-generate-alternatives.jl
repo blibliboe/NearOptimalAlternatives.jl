@@ -50,12 +50,7 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    @test_throws ArgumentError generate_alternatives(
-      model,
-      0.1,
-      5,
-      algorithm,
-    )
+    @test_throws ArgumentError generate_alternatives(model, 0.1, 5, algorithm)
   end
 
   @testset "Make sure error is thrown when incorrect optimality_gap." begin
@@ -70,12 +65,7 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    @test_throws ArgumentError generate_alternatives(
-      model,
-      -0.1,
-      5,
-      algorithm,
-    )
+    @test_throws ArgumentError generate_alternatives(model, -0.1, 5, algorithm)
   end
 
   @testset "Make sure error is thrown when incorrect n_alternatives." begin
@@ -90,12 +80,7 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    @test_throws ArgumentError generate_alternatives(
-      model,
-      0.1,
-      0,
-      algorithm,
-    )
+    @test_throws ArgumentError generate_alternatives(model, 0.1, 0, algorithm)
   end
 
   @testset "Test regular run with one alternative." begin
@@ -132,13 +117,7 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    results = generate_alternatives(
-      model,
-      0.1,
-      1,
-      algorithm,
-      fixed_variables = [x_2],
-    )
+    results = generate_alternatives(model, 0.1, 1, algorithm, fixed_variables = [x_2])
 
     # Test that `results` contains one solution with 2 variables, and an objective value between 1.8 and 2.0. Also, `x_2` should remain around 1.0 and `x_1` should be between 0.8 and 1.0.
     @test length(results.solutions) == 1 &&
@@ -187,13 +166,8 @@ end
 
     algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-    results = generate_alternatives(
-      model,
-      0.1,
-      1,
-      algorithm,
-      metric = WeightedSqEuclidean([0.5, 10]),
-    )
+    results =
+      generate_alternatives(model, 0.1, 1, algorithm, metric = WeightedSqEuclidean([0.5, 10]))
     results = generate_alternatives!(
       model,
       0.1,

@@ -24,13 +24,13 @@ Generate `n_alternatives` solutions to `model` which are as distant from the opt
 function generate_alternatives!(
   model::JuMP.Model,
   optimality_gap::Float64,
-  variables::AbstractArray{T,N},
+  variables::AbstractArray{T, N},
   n_alternatives::Int64;
   weights = zeros(length(variables)),
   modeling_method::Symbol = :Max_Distance,
   metric::Distances.SemiMetric = SqEuclidean(),
   fixed_variables::Vector{VariableRef} = VariableRef[],
-) where {T<:Union{VariableRef,AffExpr},N}
+) where {T <: Union{VariableRef, AffExpr}, N}
   if !is_solved_and_feasible(model)
     throw(ArgumentError("JuMP model has not been solved."))
   elseif optimality_gap < 0
@@ -41,9 +41,16 @@ function generate_alternatives!(
 
   result = AlternativeSolutions([], []) # Initialize the result container for storing alternative solutions.
 
-
   @info "Creating model for generating alternatives."
-  create_alternative_generating_problem!(model, optimality_gap, fixed_variables, variables; weights = weights, modeling_method = modeling_method, metric = metric)
+  create_alternative_generating_problem!(
+    model,
+    optimality_gap,
+    fixed_variables,
+    variables;
+    weights = weights,
+    modeling_method = modeling_method,
+    metric = metric,
+  )
   @info "Solving model."
   JuMP.optimize!(model)
   @info "Solution #1/$n_alternatives found." solution_summary(model)
@@ -52,7 +59,12 @@ function generate_alternatives!(
   # If n_solutions > 1, we repeat the solving process to generate multiple solutions.
   for i = 2:n_alternatives
     @info "Reconfiguring model for generating alternatives."
-    update_objective_function!(model, variables; weights = weights, modeling_method = modeling_method)
+    update_objective_function!(
+      model,
+      variables;
+      weights = weights,
+      modeling_method = modeling_method,
+    )
     @info "Solving model."
     JuMP.optimize!(model)
     @info "Solution #$i/$n_alternatives found." solution_summary(model)
