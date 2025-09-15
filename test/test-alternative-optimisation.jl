@@ -12,7 +12,7 @@
     x_1_res = value(x_1)
     x_2_res = value(x_2)
 
-    NearOptimalAlternatives.create_alternative_generating_problem!(
+    create_alternative_generating_problem!(
       model,
       0.1,
       VariableRef[],
@@ -38,7 +38,7 @@
     x_1_res = value(x_1)
     x_2_res = value(x_2)
 
-    NearOptimalAlternatives.create_alternative_generating_problem!(
+    create_alternative_generating_problem!(
       model,
       0.1,
       VariableRef[],
@@ -70,7 +70,7 @@
     x_1_res = value(x_1)
     x_2_res = value(x_2)
 
-    NearOptimalAlternatives.create_alternative_generating_problem!(
+    create_alternative_generating_problem!(
       model,
       0.1,
       [x_2],
@@ -105,7 +105,7 @@ end
   x_1_res = value(x_1)
   x_2_res = value(x_2)
 
-  NearOptimalAlternatives.update_objective_function!(model, all_variables(model); metric = SqEuclidean())
+  update_objective_function!(model, all_variables(model); metric = SqEuclidean())
   # Test that the correct alternative problem is created and that `x_2` is fixed.
   @test objective_sense(model) == MAX_SENSE &&
         objective_function(model) == QuadExpr(

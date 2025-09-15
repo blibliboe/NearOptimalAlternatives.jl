@@ -1,3 +1,5 @@
+export create_alternative_generating_problem!, update_objective_function!
+
 """
 const METHOD_DISPATCH shows the mapping of method symbols to their corresponding update functions for the modelling-for-generating-alternatives problem.
 It is used to dynamically select the appropriate function based on the method specified in the `create_alternative_generating_problem!` function.
