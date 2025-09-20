@@ -82,7 +82,7 @@ If this is the first time you work with this repository, follow the instructions
 
 ### Before creating a pull request
 
-- [Advanced] Try to create "atomic git commits" (recommended reading: [The Utopic Git History](https://blog.esciencecenter.nl/the-utopic-git-history-d44b81c09593)).
+- [Advanced] Try to create "atomic git commits".
 - Make sure the tests pass.
 - Make sure the pre-commit tests pass.
 - Fetch any `main` updates from upstream and rebase your branch, if necessary:
