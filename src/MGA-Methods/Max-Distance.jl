@@ -27,20 +27,20 @@ This function is typically used in the context of generating diverse solutions (
 
 """
 function Dist_initial!(
-  model::JuMP.Model,
-  variables::AbstractArray{T, N},
-  fixed_variables::Vector{VariableRef};
-  weights::Vector{Float64} = zeros(length(variables)),
-  metric::Distances.SemiMetric = SqEuclidean(),
-) where {T <: Union{VariableRef, AffExpr}, N}
-  vars_vec = [v for v in variables]
-  solution = value.(vars_vec)
+    model::JuMP.Model,
+    variables::AbstractArray{T,N},
+    fixed_variables::Vector{VariableRef};
+    weights::Vector{Float64} = zeros(length(variables)),
+    metric::Distances.SemiMetric = SqEuclidean(),
+) where {T<:Union{VariableRef,AffExpr},N}
+    vars_vec = [v for v in variables]
+    solution = value.(vars_vec)
 
-  # Fix the variables that are fixed
-  fix.(fixed_variables, value.(fixed_variables), force = true)
+    # Fix the variables that are fixed
+    fix.(fixed_variables, value.(fixed_variables), force = true)
 
-  set_objective_sense(model, FEASIBILITY_SENSE)
-  @objective(model, Max, Distances.evaluate(metric, vars_vec, solution))
+    set_objective_sense(model, FEASIBILITY_SENSE)
+    @objective(model, Max, Distances.evaluate(metric, vars_vec, solution))
 end
 
 """
@@ -69,18 +69,22 @@ This function builds upon a previously defined objective by incrementally adding
 
 """
 function Dist_update!(
-  model::JuMP.Model,
-  variables::AbstractArray{T, N};
-  weights::Vector{Float64} = zeros(length(variables)),
-  metric::Distances.SemiMetric = Cityblock(),
-) where {T <: Union{VariableRef, AffExpr}, N}
-  cumulative_distance = objective_function(model)
+    model::JuMP.Model,
+    variables::AbstractArray{T,N};
+    weights::Vector{Float64} = zeros(length(variables)),
+    metric::Distances.SemiMetric = Cityblock(),
+) where {T<:Union{VariableRef,AffExpr},N}
+    cumulative_distance = objective_function(model)
 
-  vars_vec = [v for v in variables]
-  solution = value.(vars_vec)
+    vars_vec = [v for v in variables]
+    solution = value.(vars_vec)
 
-  # Reset objective sense to be able to update objective function.
-  set_objective_sense(model, FEASIBILITY_SENSE)
-  # Update objective by adding the distance between variables and the previous optimal solution.
-  @objective(model, Max, cumulative_distance + Distances.evaluate(metric, vars_vec, solution))
+    # Reset objective sense to be able to update objective function.
+    set_objective_sense(model, FEASIBILITY_SENSE)
+    # Update objective by adding the distance between variables and the previous optimal solution.
+    @objective(
+        model,
+        Max,
+        cumulative_distance + Distances.evaluate(metric, vars_vec, solution)
+    )
 end
