@@ -33,6 +33,7 @@ function Dist_initial!(
     weights::Vector{Float64} = zeros(length(variables)),
     metric::Distances.SemiMetric = SqEuclidean(),
 ) where {T<:Union{VariableRef,AffExpr},N}
+
     vars_vec = [v for v in variables]
     solution = value.(vars_vec)
 
@@ -42,6 +43,7 @@ function Dist_initial!(
     set_objective_sense(model, FEASIBILITY_SENSE)
     @objective(model, Max, Distances.evaluate(metric, vars_vec, solution))
 end
+
 
 """
     Dist_update!(

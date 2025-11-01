@@ -13,6 +13,7 @@ const METHOD_DISPATCH_UPDATE = Dict{Symbol,Function}(
     :Max_Distance => Dist_update!,
 )
 
+
 const METHOD_DISPATCH_INITIAL = Dict{Symbol,Function}(
     :HSJ => HSJ_initial!,
     # :Spores => SPORES_update!,
