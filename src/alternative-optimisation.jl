@@ -14,7 +14,7 @@ const METHOD_DISPATCH_UPDATE = Dict{Symbol,Function}(
 )
 
 const METHOD_DISPATCH_INITIAL = Dict{Symbol,Function}(
-    :HSJ => HSJ_update!,
+    :HSJ => HSJ_initial!,
     # :Spores => SPORES_update!,
     # :Min_Max_Variables => MM_update!,
     # :Random_Vector => RV_update!,

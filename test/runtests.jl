@@ -25,10 +25,3 @@ for (root, dirs, files) in walkdir(@__DIR__)
         end
     end
 end
-
-for file in readdir(joinpath(@__DIR__, "tests-MGA-Methods/"))
-    if !startswith("test-")(file)
-        continue
-    end
-    include(joinpath("tests-MGA-Methods", file))
-end
