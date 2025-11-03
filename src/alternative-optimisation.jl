@@ -5,7 +5,7 @@ const METHOD_DISPATCH shows the mapping of method symbols to their corresponding
 It is used to dynamically select the appropriate function based on the method specified in the `create_alternative_generating_problem!` function.
 """
 const METHOD_DISPATCH_UPDATE = Dict{Symbol,Function}(
-    # :HSJ => HSJ_update!,
+    :HSJ => HSJ_update!,
     # :Spores => SPORES_update!,
     # :Min_Max_Variables => MM_update!,
     # :Random_Vector => RV_update!,
@@ -13,8 +13,9 @@ const METHOD_DISPATCH_UPDATE = Dict{Symbol,Function}(
     :Max_Distance => Dist_update!,
 )
 
+
 const METHOD_DISPATCH_INITIAL = Dict{Symbol,Function}(
-    # :HSJ => HSJ_update!,
+    :HSJ => HSJ_initial!,
     # :Spores => SPORES_update!,
     # :Min_Max_Variables => MM_update!,
     # :Random_Vector => RV_update!,
