@@ -1,8 +1,8 @@
-export Random_Vector_update!, Random_Vector_initial!
+export Min_Max_Variables_update!, Min_Max_Variables_initial!
 
 
 """
-    Random_Vector_initial!(
+    Min_Max_Variables_initial!(
         model::JuMP.Model,
         variables::AbstractArray{T,N},
         fixed_variables::Vector{VariableRef};
@@ -10,7 +10,7 @@ export Random_Vector_update!, Random_Vector_initial!
         metric::Distances.SemiMetric = SqEuclidean(),
     ) where {T<:Union{VariableRef,AffExpr}, N}
 Initialize the objective of a JuMP model using the Min/Max Variables method to generate alternative solutions.
-This function sets a new objective that minimizes the weighted sum of the decision variables, where weights are uniformly chosen between -1 and 1. Fixed variables are locked at their optimal values.
+This function sets a new objective that minimizes the weighted sum of the decision variables, where weights are randomized between -1, 0 and 1. Fixed variables are locked at their optimal values.
 # Arguments
 - `model::JuMP.Model`: a solved JuMP model whose objective is to be redefined for alternative generation.
 - `variables::AbstractArray{T,N}`: the variables involved in the objective, typically a vector or matrix of `VariableRef`s or `AffExpr`s.
@@ -22,7 +22,7 @@ This function sets a new objective that minimizes the weighted sum of the decisi
 - Fixed variables are frozen at their optimal values using `fix(...)`.
 - The objective is set to minimize the weighted sum of the variables, encouraging sparsity or deviation from the original.
 """
-function Random_Vector_initial!(
+function Min_Max_Variables_initial!(
     model::JuMP.Model,
     variables::AbstractArray{T,N},
     fixed_variables::Vector{VariableRef};
@@ -31,7 +31,7 @@ function Random_Vector_initial!(
 ) where {T<:Union{VariableRef,AffExpr},N}
     # new objective function consist of the n variables in variables
     for (i, v) in enumerate(variables)
-        weights[i] = rand(Float64) * 2 - 1
+        weights[i] = rand([-1, 0, 1])
     end
     # Fix the variables that are fixed
     fix.(fixed_variables, value.(fixed_variables), force = true)
@@ -44,14 +44,14 @@ function Random_Vector_initial!(
 end
 
 """
-    Random_Vector_update!(
+    Min_Max_Variables_update!(
         model::JuMP.Model,
         variables::AbstractArray{T,N};
         weights::Vector{Float64} = zeros(length(variables)),
         metric::Distances.SemiMetric = SqEuclidean(),
     ) where {T<:Union{VariableRef,AffExpr}, N}
 Update the objective of a JuMP model using the Min/Max Variables method to generate the next alternative solution.
-Update the weights uniformly chosen between -1 and 1.
+Update the weights randomly between -1, 0 and 1.
 # Arguments
 - `model::JuMP.Model`: the JuMP model to be updated.
 - `variables::AbstractArray{T,N}`: the decision variables involved in the updated objective.
@@ -60,9 +60,9 @@ Update the weights uniformly chosen between -1 and 1.
 # Behavior
 - Variables are randomly minimized or maximized.
 - A new objective is set: minimize the weighted sum of the variables.
-- This function does not re-fix any variables; it is typically called iteratively after `Random_Vector_initial!`.
+- This function does not re-fix any variables; it is typically called iteratively after `Min_Max_Variables_initial!`.
 """
-function Random_Vector_update!(
+function Min_Max_Variables_update!(
     model::JuMP.Model,
     variables::AbstractArray{T,N};
     weights::Vector{Float64} = zeros(length(variables)),
@@ -70,7 +70,7 @@ function Random_Vector_update!(
 ) where {T<:Union{VariableRef,AffExpr},N}
     # new objective function consist of the n variables in variables
     for (i, v) in enumerate(variables)
-        weights[i] = rand(Float64) * 2 - 1
+        weights[i] = rand([-1, 0, 1])
     end
 
     # update these variables based on their sign
