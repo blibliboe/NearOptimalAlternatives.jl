@@ -10,6 +10,7 @@ using DataStructures
 
 include("MGA-Methods/Max-Distance.jl")
 include("MGA-Methods/HSJ.jl")
+include("MGA-Methods/Spores.jl")
 
 include("results.jl")
 include("alternative-optimisation.jl")

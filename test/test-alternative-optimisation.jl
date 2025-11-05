@@ -12,11 +12,11 @@
         x_1_res = value(x_1)
         x_2_res = value(x_2)
 
-        create_alternative_generating_problem!(
+        NearOptimalAlternatives.create_alternative_generating_problem!(
             model,
             0.1,
             VariableRef[],
-            JuMP.all_variables(model);
+            all_variables(model);
             metric = SqEuclidean(),
         )
         # Test that the correct alternative problem is created and that `x_2` is fixed.
@@ -38,11 +38,11 @@
         x_1_res = value(x_1)
         x_2_res = value(x_2)
 
-        create_alternative_generating_problem!(
+        NearOptimalAlternatives.create_alternative_generating_problem!(
             model,
             0.1,
             VariableRef[],
-            JuMP.all_variables(model);
+            all_variables(model);
             metric = SqEuclidean(),
         )
         # Test that the correct alternative problem is created.
@@ -71,11 +71,11 @@
         x_1_res = value(x_1)
         x_2_res = value(x_2)
 
-        create_alternative_generating_problem!(
+        NearOptimalAlternatives.create_alternative_generating_problem!(
             model,
             0.1,
             [x_2],
-            JuMP.all_variables(model);
+            all_variables(model);
             metric = SqEuclidean(),
         )
         # Test that the correct alternative problem is created and that `x_2` is fixed.
@@ -107,7 +107,11 @@ end
     x_1_res = value(x_1)
     x_2_res = value(x_2)
 
-    update_objective_function!(model, JuMP.all_variables(model); metric = SqEuclidean())
+    NearOptimalAlternatives.update_objective_function!(
+        model,
+        all_variables(model);
+        metric = SqEuclidean(),
+    )
     # Test that the correct alternative problem is created and that `x_2` is fixed.
     @test objective_sense(model) == MAX_SENSE &&
           objective_function(model) == QuadExpr(

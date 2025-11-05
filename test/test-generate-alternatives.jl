@@ -8,10 +8,10 @@
         @variable(model, 0 ≤ x_2 ≤ 1)
         @objective(model, Max, x_1 + x_2)
 
-        @test_throws ArgumentError generate_alternatives!(
+        @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(
             model,
             0.1,
-            JuMP.all_variables(model),
+            all_variables(model),
             5,
         )
     end
@@ -26,10 +26,10 @@
         @objective(model, Max, x_1 + x_2)
         JuMP.optimize!(model)
 
-        @test_throws ArgumentError generate_alternatives!(
+        @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(
             model,
             -0.1,
-            JuMP.all_variables(model),
+            all_variables(model),
             5,
         )
     end
@@ -44,10 +44,10 @@
         @objective(model, Max, x_1 + x_2)
         JuMP.optimize!(model)
 
-        @test_throws ArgumentError generate_alternatives!(
+        @test_throws ArgumentError NearOptimalAlternatives.generate_alternatives!(
             model,
             0.1,
-            JuMP.all_variables(model),
+            all_variables(model),
             0,
         )
     end
@@ -211,17 +211,17 @@ end
 
         algorithm = Metaheuristics.PSO(N = 100, C1 = 2.0, C2 = 2.0, ω = 0.8)
 
-        results = generate_alternatives(
+        results = NearOptimalAlternatives.generate_alternatives(
             model,
             0.1,
             1,
             algorithm,
             metric = WeightedSqEuclidean([0.5, 10]),
         )
-        results = generate_alternatives!(
+        results = NearOptimalAlternatives.generate_alternatives!(
             model,
             0.1,
-            JuMP.all_variables(model),
+            all_variables(model),
             1,
             metric = WeightedSqEuclidean([0.5, 1]),
         )

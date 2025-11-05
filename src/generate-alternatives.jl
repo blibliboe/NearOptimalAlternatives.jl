@@ -45,6 +45,7 @@ function generate_alternatives!(
 
     result = AlternativeSolutions([], []) # Initialize the result container for storing alternative solutions.
 
+
     @info "Creating model for generating alternatives."
     create_alternative_generating_problem!(
         model,
@@ -71,7 +72,7 @@ function generate_alternatives!(
         )
         @info "Solving model."
         JuMP.optimize!(model)
-        @info "Solution #1/$n_alternatives found." solution_summary(model)
+        @info "Solution #$i/$n_alternatives found." solution_summary(model)
         update_solutions!(result, model)
     end
 
