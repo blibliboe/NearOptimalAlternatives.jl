@@ -22,19 +22,25 @@ This function sets a new objective that minimizes the weighted sum of the decisi
 - Fixed variables are frozen at their optimal values using `fix(...)`.
 - The objective is set to minimize the weighted sum of the variables, encouraging sparsity or deviation from the original.
 """
-function Min_Max_Variables_initial!(model::JuMP.Model, variables::AbstractArray{T,N}, fixed_variables::Vector{VariableRef}; weights::Vector{Float64} = zeros(length(variables)), metric::Distances.SemiMetric = SqEuclidean()) where {T<:Union{VariableRef,AffExpr},N}
-  # new objective function consist of the n variables in variables
-  for (i, v) in enumerate(variables)
-    weights[i] = rand([-1, 0, 1])
-  end
-  # Fix the variables that are fixed
-  fix.(fixed_variables, value.(fixed_variables), force = true)
+function Min_Max_Variables_initial!(
+    model::JuMP.Model,
+    variables::AbstractArray{T,N},
+    fixed_variables::Vector{VariableRef};
+    weights::Vector{Float64} = zeros(length(variables)),
+    metric::Distances.SemiMetric = SqEuclidean(),
+) where {T<:Union{VariableRef,AffExpr},N}
+    # new objective function consist of the n variables in variables
+    for (i, v) in enumerate(variables)
+        weights[i] = rand([-1, 0, 1])
+    end
+    # Fix the variables that are fixed
+    fix.(fixed_variables, value.(fixed_variables), force = true)
 
-  # update these variables based on their sign
-  objective_function = [v * weights[i] for (i, v) in enumerate(variables)]
+    # update these variables based on their sign
+    objective_function = [v * weights[i] for (i, v) in enumerate(variables)]
 
-  # Update objective by adding the distance between variables and the previous optimal solution.
-  @objective(model, Min, sum(objective_function))
+    # Update objective by adding the distance between variables and the previous optimal solution.
+    @objective(model, Min, sum(objective_function))
 end
 
 """
@@ -56,15 +62,20 @@ Update the weights randomly between -1, 0 and 1.
 - A new objective is set: minimize the weighted sum of the variables.
 - This function does not re-fix any variables; it is typically called iteratively after `Min_Max_Variables_initial!`.
 """
-function Min_Max_Variables_update!(model::JuMP.Model, variables::AbstractArray{T,N}; weights::Vector{Float64} = zeros(length(variables)), metric::Distances.SemiMetric = SqEuclidean()) where {T<:Union{VariableRef,AffExpr},N}
-  # new objective function consist of the n variables in variables
-  for (i, v) in enumerate(variables)
-    weights[i] = rand([-1, 0, 1])
-  end
+function Min_Max_Variables_update!(
+    model::JuMP.Model,
+    variables::AbstractArray{T,N};
+    weights::Vector{Float64} = zeros(length(variables)),
+    metric::Distances.SemiMetric = SqEuclidean(),
+) where {T<:Union{VariableRef,AffExpr},N}
+    # new objective function consist of the n variables in variables
+    for (i, v) in enumerate(variables)
+        weights[i] = rand([-1, 0, 1])
+    end
 
-  # update these variables based on their sign
-  objective_function = [v * weights[i] for (i, v) in enumerate(variables)]
+    # update these variables based on their sign
+    objective_function = [v * weights[i] for (i, v) in enumerate(variables)]
 
-  # Update objective by adding the distance between variables and the previous optimal solution.
-  @objective(model, Min, sum(objective_function))
+    # Update objective by adding the distance between variables and the previous optimal solution.
+    @objective(model, Min, sum(objective_function))
 end
